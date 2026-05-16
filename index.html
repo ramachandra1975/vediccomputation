@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 5 — VCLU Pipeline | Vedic-Computational Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0b0914;
+  --bg2:      #110f1e;
+  --bg3:      #181428;
+  --card:     #1c1830;
+  --card2:    #221e38;
+  --border:   rgba(180,160,255,0.12);
+  --border2:  rgba(180,160,255,0.25);
+  --border3:  rgba(180,160,255,0.5);
+  --gold:     #c9a84c;
+  --gold2:    #e8c97a;
+  --gold3:    #f5e4a8;
+  --violet:   #7c6af5;
+  --violet2:  #a599f7;
+  --teal:     #2ec4a0;
+  --teal2:    #5edbc0;
+  --coral:    #e0704a;
+  --coral2:   #f0956e;
+  --amber:    #d4954a;
+  --amber2:   #e8b87a;
+  --text:     #e8e4f8;
+  --text2:    #a89ec8;
+  --text3:    #6a6088;
+  --mono:     'JetBrains Mono', monospace;
+  --serif:    'EB Garamond', serif;
+  --display:  'Cinzel', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 5%,  rgba(124,106,245,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 90% 90%,  rgba(46,196,160,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,  rgba(201,168,76,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HEADER ── */
+.site-header {
+  position: relative; z-index: 10;
+  padding: 60px 56px 44px;
+  border-bottom: 1px solid var(--border);
+  max-width: 1200px; margin: 0 auto;
+}
+.phase-badge {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  color: var(--teal); text-transform: uppercase; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.phase-badge::before {
+  content: ''; display: inline-block; width: 32px; height: 1px;
+  background: var(--teal); opacity: 0.6;
+}
+.site-header h1 {
+  font-family: var(--display); font-size: clamp(26px, 3.5vw, 44px);
+  font-weight: 700; color: var(--gold2); letter-spacing: 1px;
+  line-height: 1.2; margin-bottom: 14px;
+}
+.site-header p { font-size: 17px; color: var(--text2); max-width: 680px; line-height: 1.8; }
+.header-meta { display: flex; gap: 32px; margin-top: 24px; }
+.header-meta span { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: 1px; }
+.header-meta span b { color: var(--teal2); font-weight: 400; }
+
+/* ── LAYOUT ── */
+.main {
+  position: relative; z-index: 1;
+  max-width: 1200px; margin: 0 auto;
+  padding: 48px 56px 80px;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* ── LEFT: INPUT + PIPELINE ── */
+.left-panel { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+.input-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 26px;
+}
+.input-block h2 {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 14px;
+}
+.input-block textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.75;
+  resize: none;
+  min-height: 110px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-block textarea:focus { border-color: var(--border3); }
+.input-block textarea::placeholder { color: var(--text3); }
+
+.presets {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0;
+}
+.preset-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
+  padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: transparent; color: var(--text3); cursor: pointer;
+  transition: all 0.2s;
+}
+.preset-btn:hover { color: var(--teal2); border-color: rgba(46,196,160,0.4); background: rgba(46,196,160,0.05); }
+
+.run-row { display: flex; gap: 10px; margin-top: 14px; }
+.run-btn {
+  flex: 1;
+  background: var(--teal);
+  border: none; border-radius: 10px;
+  padding: 12px 20px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
+  color: #0b0914; font-weight: 600; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.run-btn:hover { opacity: 0.88; }
+.run-btn:active { transform: scale(0.97); }
+.run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.reset-btn {
+  background: transparent; border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px 16px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
+  color: var(--text3); cursor: pointer; transition: all 0.2s;
+}
+.reset-btn:hover { color: var(--text2); border-color: var(--border3); }
+
+/* ── PIPELINE VISUAL ── */
+.pipeline {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.pipeline h2 {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 16px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.gate-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+.gate-row:hover { background: var(--bg3); }
+.gate-row.active-gate { background: rgba(46,196,160,0.06); }
+.gate-row.done-gate { opacity: 0.95; }
+
+.gate-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; flex-shrink: 0;
+  border: 1px solid;
+}
+.gate-num.g0 { border-color: rgba(124,106,245,0.4); color: var(--violet2); }
+.gate-num.g1 { border-color: rgba(46,196,160,0.4);  color: var(--teal2); }
+.gate-num.g2 { border-color: rgba(212,149,74,0.4);  color: var(--amber2); }
+.gate-num.g3 { border-color: rgba(224,112,74,0.4);  color: var(--coral2); }
+.gate-num.g4 { border-color: rgba(201,168,76,0.4);  color: var(--gold2); }
+.gate-num.done { background: var(--teal); border-color: var(--teal); color: #0b0914 !important; }
+.gate-num.running-anim {
+  animation: pulseGate 0.8s ease infinite;
+}
+@keyframes pulseGate {
+  0%,100% { transform: scale(1); box-shadow: none; }
+  50% { transform: scale(1.15); box-shadow: 0 0 8px rgba(46,196,160,0.4); }
+}
+
+.gate-info-mini { flex: 1; min-width: 0; }
+.gate-name-mini {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
+  color: var(--text2); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gate-status-mini {
+  font-family: var(--mono); font-size: 10px; color: var(--text3); min-width: 48px; text-align: right;
+}
+.gate-status-mini.done { color: var(--teal2); }
+.gate-status-mini.running { color: var(--amber2); animation: blink 0.7s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.connector {
+  height: 20px; display: flex; align-items: center; justify-content: flex-start;
+  padding-left: 23px;
+}
+.connector-line {
+  width: 1px; height: 100%; background: var(--border);
+  position: relative; margin-left: 13px;
+  transition: background 0.4s;
+}
+.connector-line.lit { background: var(--teal); }
+.connector-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--border2); margin-left: 10px; flex-shrink: 0;
+  transition: background 0.4s;
+}
+.connector-dot.lit { background: var(--teal); }
+
+/* ── RIGHT: DETAIL PANELS ── */
+.right-panel { display: flex; flex-direction: column; gap: 0; }
+
+.gate-detail {
+  display: none;
+  animation: fadeIn 0.3s ease forwards;
+}
+.gate-detail.visible { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+.gate-hero {
+  border-radius: 16px 16px 0 0;
+  padding: 28px 32px 24px;
+  border: 1px solid;
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+.gate-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.04;
+}
+
+.gh-violet { border-color: rgba(124,106,245,0.4); }
+.gh-violet::before { background: radial-gradient(ellipse at 20% 50%, #7c6af5, transparent 60%); }
+.gh-teal   { border-color: rgba(46,196,160,0.4); }
+.gh-teal::before   { background: radial-gradient(ellipse at 20% 50%, #2ec4a0, transparent 60%); }
+.gh-amber  { border-color: rgba(212,149,74,0.4); }
+.gh-amber::before  { background: radial-gradient(ellipse at 20% 50%, #d4954a, transparent 60%); }
+.gh-coral  { border-color: rgba(224,112,74,0.4); }
+.gh-coral::before  { background: radial-gradient(ellipse at 20% 50%, #e0704a, transparent 60%); }
+.gh-gold   { border-color: rgba(201,168,76,0.4); }
+.gh-gold::before   { background: radial-gradient(ellipse at 20% 50%, #c9a84c, transparent 60%); }
+
+.gate-hero-num {
+  font-family: var(--display); font-size: 64px; font-weight: 700;
+  line-height: 1; margin-bottom: 8px; opacity: 0.12;
+  position: absolute; top: 20px; right: 28px;
+}
+.gate-hero-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.gh-violet .gate-hero-label { color: var(--violet2); }
+.gh-teal   .gate-hero-label { color: var(--teal2); }
+.gh-amber  .gate-hero-label { color: var(--amber2); }
+.gh-coral  .gate-hero-label { color: var(--coral2); }
+.gh-gold   .gate-hero-label { color: var(--gold2); }
+
+.gate-hero h3 {
+  font-family: var(--display); font-size: 22px; font-weight: 600;
+  color: var(--text); line-height: 1.3; margin-bottom: 6px;
+}
+.gate-hero-sub { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+.gate-body {
+  border: 1px solid; border-top: none;
+  border-radius: 0 0 16px 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.gb-violet { border-color: rgba(124,106,245,0.25); }
+.gb-teal   { border-color: rgba(46,196,160,0.25); }
+.gb-amber  { border-color: rgba(212,149,74,0.25); }
+.gb-coral  { border-color: rgba(224,112,74,0.25); }
+.gb-gold   { border-color: rgba(201,168,76,0.25); }
+
+.gate-col {
+  padding: 24px 28px;
+  background: var(--card);
+}
+.gate-col:first-child { border-radius: 0 0 0 16px; border-right: 1px solid var(--border); }
+.gate-col:last-child { border-radius: 0 0 16px 0; background: var(--bg2); }
+
+.gate-col h4 {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 14px;
+}
+.gate-col p { font-size: 15px; color: var(--text2); line-height: 1.85; }
+.eq-mini {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--violet2);
+  line-height: 1.9;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.eq-mini.teal   { color: var(--teal2); }
+.eq-mini.amber  { color: var(--amber2); }
+.eq-mini.coral  { color: var(--coral2); }
+.eq-mini.gold   { color: var(--gold2); }
+
+/* ── LIVE OUTPUT AREA ── */
+.live-output {
+  margin-top: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: none;
+}
+.live-output.show { display: block; }
+.lo-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.lo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: blink 0.7s ease infinite; }
+.lo-dot.done-dot { animation: none; background: var(--teal); }
+.lo-body {
+  padding: 14px 16px;
+  font-family: var(--serif); font-size: 14px;
+  color: var(--text2); line-height: 1.8;
+  background: var(--bg3);
+}
+
+/* ── CANVAS VISUALIZATION ── */
+.canvas-section {
+  margin-top: 0;
+  padding: 20px 28px 24px;
+  border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 16px 16px;
+  background: var(--bg2);
+  display: none;
+}
+.canvas-section.show { display: block; }
+.canvas-section h4 {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
+}
+
+.viz-canvas {
+  width: 100%; display: block;
+  border-radius: 8px; background: var(--bg3);
+}
+
+/* ── FINAL OUTPUT ── */
+.final-block {
+  display: none;
+  margin-top: 32px;
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: revealFinal 0.6s ease forwards;
+}
+.final-block.show { display: block; }
+@keyframes revealFinal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.final-header {
+  padding: 20px 28px;
+  background: rgba(201,168,76,0.05);
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+.final-header-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+}
+.final-header h3 {
+  font-family: var(--display); font-size: 18px; font-weight: 600;
+  color: var(--gold2); letter-spacing: 1px;
+}
+.final-body {
+  padding: 24px 28px;
+  background: var(--card);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+.final-col h4 {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
+}
+.final-col p { font-size: 15px; color: var(--text2); line-height: 1.85; }
+
+.state-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 16px;
+}
+.state-cell {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px;
+}
+.state-cell-label { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.state-cell-val   { font-family: var(--mono); font-size: 14px; color: var(--gold2); }
+
+/* ── SIGNAL BAR ── */
+.signal-wrap { padding: 0 10px; }
+.signal-bar { height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+.signal-fill { height: 100%; border-radius: 1px; width: 0%; transition: width 0.8s ease; }
+
+/* ── FOOTER ── */
+.site-footer {
+  position: relative; z-index: 1;
+  max-width: 1200px; margin: 0 auto;
+  padding: 28px 56px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-left { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 1px; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-family: var(--mono); font-size: 11px; color: var(--violet2);
+  text-decoration: none; letter-spacing: 1px;
+  border-bottom: 1px solid rgba(124,106,245,0.3); padding-bottom: 1px;
+}
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; padding: 32px 24px 60px; }
+  .left-panel { position: static; }
+  .gate-body { grid-template-columns: 1fr; }
+  .final-body { grid-template-columns: 1fr; }
+  .site-header { padding: 48px 24px 36px; }
+  .site-footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="phase-badge">Phase 5 — Module 6</div>
+  <h1>Vedic-Computational Logic Unit<br>The VCLU Pipeline</h1>
+  <p>All five gates in sequence — Pāṇini → Namakam → Chamakam → Neti-Neti → Mahāvākya. Enter any raw thought, desire, or question and watch it transform through each gate into a unified output state.</p>
+  <div class="header-meta">
+    <span>Gates <b>5 Sequential</b></span>
+    <span>Framework <b>DSP + Transformers + PCA + Quantum</b></span>
+    <span>Output <b>Brahman / Net 1.0</b></span>
+    <span>Phase <b>5 / 6</b></span>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ═══════ LEFT: INPUT + PIPELINE ═══════ -->
+  <div class="left-panel">
+
+    <div class="input-block">
+      <h2>Raw Input — Thought / Desire / Question</h2>
+      <textarea id="vclu-input" placeholder="Enter a thought, desire, or question to process through the VCLU...">I desire peace and clarity in my life.</textarea>
+      <div class="presets">
+        <button class="preset-btn" onclick="setPreset(0)">peace &amp; clarity</button>
+        <button class="preset-btn" onclick="setPreset(1)">Who am I?</button>
+        <button class="preset-btn" onclick="setPreset(2)">desire for wealth</button>
+        <button class="preset-btn" onclick="setPreset(3)">fear of death</button>
+        <button class="preset-btn" onclick="setPreset(4)">seeking liberation</button>
+      </div>
+      <div class="run-row">
+        <button class="run-btn" id="run-btn" onclick="runVCLU()">▶ Run through VCLU</button>
+        <button class="reset-btn" onclick="resetVCLU()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <h2>Signal Pipeline</h2>
+
+      <div class="gate-row" id="gr0" onclick="showGate(0)">
+        <div class="gate-num g0" id="gn0">1</div>
+        <div class="gate-info-mini">
+          <div class="gate-name-mini">Pāṇini Morpho-Syntactic</div>
+        </div>
+        <div class="gate-status-mini" id="gs0">—</div>
+      </div>
+      <div class="connector"><div class="connector-line" id="cl0"></div><div class="connector-dot" id="cd0"></div></div>
+
+      <div class="gate-row" id="gr1" onclick="showGate(1)">
+        <div class="gate-num g1" id="gn1">2</div>
+        <div class="gate-info-mini">
+          <div class="gate-name-mini">Namakam Inverting Gate</div>
+        </div>
+        <div class="gate-status-mini" id="gs1">—</div>
+      </div>
+      <div class="connector"><div class="connector-line" id="cl1"></div><div class="connector-dot" id="cd1"></div></div>
+
+      <div class="gate-row" id="gr2" onclick="showGate(2)">
+        <div class="gate-num g2" id="gn2">3</div>
+        <div class="gate-info-mini">
+          <div class="gate-name-mini">Chamakam Generative Gate</div>
+        </div>
+        <div class="gate-status-mini" id="gs2">—</div>
+      </div>
+      <div class="connector"><div class="connector-line" id="cl2"></div><div class="connector-dot" id="cd2"></div></div>
+
+      <div class="gate-row" id="gr3" onclick="showGate(3)">
+        <div class="gate-num g3" id="gn3">4</div>
+        <div class="gate-info-mini">
+          <div class="gate-name-mini">Neti-Neti Reduction Gate</div>
+        </div>
+        <div class="gate-status-mini" id="gs3">—</div>
+      </div>
+      <div class="connector"><div class="connector-line" id="cl3"></div><div class="connector-dot" id="cd3"></div></div>
+
+      <div class="gate-row" id="gr4" onclick="showGate(4)">
+        <div class="gate-num g4" id="gn4">5</div>
+        <div class="gate-info-mini">
+          <div class="gate-name-mini">Mahāvākya Collapse Gate</div>
+        </div>
+        <div class="gate-status-mini" id="gs4">—</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════ RIGHT: GATE DETAILS ═══════ -->
+  <div class="right-panel">
+
+    <!-- DEFAULT IDLE STATE -->
+    <div class="gate-detail visible" id="gd-idle">
+      <div style="padding: 48px 32px; border: 1px solid var(--border); border-radius: 16px; text-align: center;">
+        <div style="font-family:var(--display); font-size: 32px; color: var(--text3); margin-bottom: 16px; opacity: 0.4;">VCLU</div>
+        <p style="font-family:var(--mono); font-size: 12px; color: var(--text3); letter-spacing: 1px; margin-bottom: 8px;">VEDIC-COMPUTATIONAL LOGIC UNIT</p>
+        <p style="font-size: 15px; color: var(--text3); max-width: 340px; margin: 0 auto;">Enter a thought and press Run — or click any gate in the pipeline to explore its mechanics.</p>
+        <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(5,1fr); gap: 8px;">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--violet2);text-align:center;padding:8px 4px;border:1px solid rgba(124,106,245,0.2);border-radius:8px">Pāṇini<br>Gate</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--teal2);text-align:center;padding:8px 4px;border:1px solid rgba(46,196,160,0.2);border-radius:8px">Namakam<br>Gate</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--amber2);text-align:center;padding:8px 4px;border:1px solid rgba(212,149,74,0.2);border-radius:8px">Chamakam<br>Gate</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--coral2);text-align:center;padding:8px 4px;border:1px solid rgba(224,112,74,0.2);border-radius:8px">Neti-Neti<br>Gate</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--gold2);text-align:center;padding:8px 4px;border:1px solid rgba(201,168,76,0.2);border-radius:8px">Mahāvākya<br>Gate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 0: PANINI -->
+    <div class="gate-detail" id="gd0">
+      <div class="gate-hero gh-violet">
+        <div class="gate-hero-num">01</div>
+        <div class="gate-hero-label">Gate 1 — Morpho-Syntactic</div>
+        <h3>Pāṇini Sandhi Gate</h3>
+        <div class="gate-hero-sub">Ashtadhyāyī weight matrix · Root phoneme extraction · Grammatical switching</div>
+      </div>
+      <div class="gate-body gb-violet">
+        <div class="gate-col">
+          <h4>Mechanism</h4>
+          <p>The Pāṇini gate processes raw linguistic input through 3,959 grammatical rules from the Ashtadhyāyī — the world's first formal grammar, functioning as a logic gate. Input root words (X_root) and prefixes (X_prefix) undergo element-wise Hadamard product, producing precise vetted phoneme vectors.</p>
+          <div class="eq-mini">Y = σ(Ws(X_root ⊙ X_prefix) + B)
+
+⊙  = Hadamard product
+Ws = Ashtadhyāyī weight matrix
+B  = grammatical bias vector
+σ  = Sandhi activation function</div>
+        </div>
+        <div class="gate-col">
+          <h4>Live Gate Output</h4>
+          <div class="live-output" id="lo0">
+            <div class="lo-header"><div class="lo-dot" id="ld0"></div><span id="lh0">PROCESSING</span></div>
+            <div class="lo-body" id="lb0"></div>
+          </div>
+          <canvas class="viz-canvas" id="cv0" height="160" style="margin-top:14px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 1: NAMAKAM -->
+    <div class="gate-detail" id="gd1">
+      <div class="gate-hero gh-teal">
+        <div class="gate-hero-num">02</div>
+        <div class="gate-hero-label">Gate 2 — Acoustic Inverting</div>
+        <h3>Namakam Noise Cancellation Gate</h3>
+        <div class="gate-hero-sub">Phase inversion · Destructive interference · Ego dissolution → Śūnya</div>
+      </div>
+      <div class="gate-body gb-teal">
+        <div class="gate-col">
+          <h4>Mechanism</h4>
+          <p>The repetition of Namaha ("not-I") acts as a cognitive phase-inverter. Like active noise cancellation, the Namakam fires an opposing acoustic wave at the high-beta ego-noise of the input signal. The result of A·sin(ωt) + A·sin(ωt+π) = 0 — the subconscious cache is cleared to Śūnya.</p>
+          <div class="eq-mini teal">Φ_calm = ∫ [Ψ_mind × F⁻¹(F(S_Nama)·H(ω))] dt
+
+S_mind + S_Namakam
+= A·sin(ωt) + A·sin(ωt+π) = 0
+
+Output: Φ_calm → Ground Zero (Śūnya)</div>
+        </div>
+        <div class="gate-col">
+          <h4>Live Gate Output</h4>
+          <div class="live-output" id="lo1">
+            <div class="lo-header"><div class="lo-dot" id="ld1"></div><span id="lh1">PROCESSING</span></div>
+            <div class="lo-body" id="lb1"></div>
+          </div>
+          <canvas class="viz-canvas" id="cv1" height="160" style="margin-top:14px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 2: CHAMAKAM -->
+    <div class="gate-detail" id="gd2">
+      <div class="gate-hero gh-amber">
+        <div class="gate-hero-num">03</div>
+        <div class="gate-hero-label">Gate 3 — Generative Attention</div>
+        <h3>Chamakam Manifestation Gate</h3>
+        <div class="gate-hero-sub">QKV Transformer attention · Constructive interference · Attribute projection</div>
+      </div>
+      <div class="gate-body gb-amber">
+        <div class="gate-col">
+          <h4>Mechanism</h4>
+          <p>Once the mind is blank (Śūnya), the Chamakam's "Cha me" (and to me) acts as a Transformer attention query. Each desired element (grain, wealth, health, knowledge) becomes a Key-Value pair. The query projects the desire into the universal resonance field, amplifying coherent frequencies constructively.</p>
+          <div class="eq-mini amber">Ω = ⊕ᵢ Softmax(Q_chame · Kᵢᵀ / √dk) · Vᵢ
+
+Q = desire query vector
+K = attribute key (grain, wealth, peace...)
+V = intrinsic value vector
+⊕ = bounded direct-sum (accumulation)</div>
+        </div>
+        <div class="gate-col">
+          <h4>Live Gate Output</h4>
+          <div class="live-output" id="lo2">
+            <div class="lo-header"><div class="lo-dot" id="ld2"></div><span id="lh2">PROCESSING</span></div>
+            <div class="lo-body" id="lb2"></div>
+          </div>
+          <canvas class="viz-canvas" id="cv2" height="160" style="margin-top:14px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 3: NETI NETI -->
+    <div class="gate-detail" id="gd3">
+      <div class="gate-hero gh-coral">
+        <div class="gate-hero-num">04</div>
+        <div class="gate-hero-label">Gate 4 — Dimensionality Reduction</div>
+        <h3>Neti-Neti De-noising Gate</h3>
+        <div class="gate-hero-sub">PCA · Eigenvalue stripping · Transient elimination · Z_Ātman isolation</div>
+      </div>
+      <div class="gate-body gb-coral">
+        <div class="gate-col">
+          <h4>Mechanism</h4>
+          <p>After the Chamakam has projected the full high-dimensional tensor of desire, the Neti-Neti gate acts as a global de-noising autoencoder. It strips every component flagged as "transient" (changing over time) by applying a Kronecker-delta penalty, isolating the invariant latent vector — the Ātman.</p>
+          <div class="eq-mini coral">Z_Ātman = argminZ ‖X_Universe − W·Z‖²
+         + γ·Σⱼ δ(X_world[j] = Transient)
+
+Drop: body, mind, ego, time, space
+Keep: Pure Consciousness (λ = 1.0)</div>
+        </div>
+        <div class="gate-col">
+          <h4>Live Gate Output</h4>
+          <div class="live-output" id="lo3">
+            <div class="lo-header"><div class="lo-dot" id="ld3"></div><span id="lh3">PROCESSING</span></div>
+            <div class="lo-body" id="lb3"></div>
+          </div>
+          <canvas class="viz-canvas" id="cv3" height="160" style="margin-top:14px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 4: MAHAVAKYA -->
+    <div class="gate-detail" id="gd4">
+      <div class="gate-hero gh-gold">
+        <div class="gate-hero-num">05</div>
+        <div class="gate-hero-label">Gate 5 — Quantum Collapse</div>
+        <h3>Mahāvākya Identity Gate</h3>
+        <div class="gate-hero-sub">Bell state entanglement · Tr(ρ) = 1 · Tat Tvam Asi · Net output = 1.0</div>
+      </div>
+      <div class="gate-body gb-gold">
+        <div class="gate-col">
+          <h4>Mechanism</h4>
+          <p>The Mahāvākya gate is the ultimate collapse. The isolated Ātman vector (Jīva) and the universal field (Īśvara) are passed through the unitary Mahāvākya transformation. They emerge as a maximally entangled Bell state — indistinguishable. The partial trace of the resulting density matrix resolves to 1: unity is not achieved, it is revealed.</p>
+          <div class="eq-mini gold">U(|ψ_Jīva⟩ ⊗ |ψ_Īśvara⟩)
+= (1/√2)(|00⟩ + |11⟩)
+
+Tr(ρ_Advaita) = 1.000
+
+Output state: Sat-Chit-Ānanda
+Net value: 1.0 (Brahman)</div>
+        </div>
+        <div class="gate-col">
+          <h4>Live Gate Output</h4>
+          <div class="live-output" id="lo4">
+            <div class="lo-header"><div class="lo-dot" id="ld4"></div><span id="lh4">PROCESSING</span></div>
+            <div class="lo-body" id="lb4"></div>
+          </div>
+          <canvas class="viz-canvas" id="cv4" height="160" style="margin-top:14px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINAL OUTPUT -->
+    <div class="final-block" id="final-block">
+      <div class="final-header">
+        <div class="final-header-label">VCLU Output — Absolute Invariance</div>
+        <h3>Brahman / Net State = 1.0</h3>
+      </div>
+      <div class="final-body">
+        <div class="final-col">
+          <h4>Synthesis</h4>
+          <p id="final-synthesis">The raw input has been processed through all five gates of the Vedic-Computational Logic Unit.</p>
+        </div>
+        <div class="final-col">
+          <h4>Gate State Summary</h4>
+          <div class="state-grid">
+            <div class="state-cell"><div class="state-cell-label">Pāṇini Gate</div><div class="state-cell-val" id="ss0">—</div></div>
+            <div class="state-cell"><div class="state-cell-label">Namakam Gate</div><div class="state-cell-val" id="ss1">—</div></div>
+            <div class="state-cell"><div class="state-cell-label">Chamakam Gate</div><div class="state-cell-val" id="ss2">—</div></div>
+            <div class="state-cell"><div class="state-cell-label">Neti-Neti Gate</div><div class="state-cell-val" id="ss3">—</div></div>
+            <div class="state-cell" style="grid-column: span 2; border-color: rgba(201,168,76,0.3);">
+              <div class="state-cell-label">Mahāvākya Gate — Tr(ρ)</div>
+              <div class="state-cell-val" style="color:var(--gold2)" id="ss4">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end right-panel -->
+</main>
+
+<footer class="site-footer">
+  <div class="footer-left">VEDIC-COMPUTATIONAL CODEX · PHASE 5 OF 6 · VCLU PIPELINE</div>
+  <div class="footer-links">
+    <a href="phase4-shankaracharya.html">← Phase 4: Shankaracharya</a>
+  </div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+var presets=[
+  'I desire peace and clarity in my life.',
+  'Who am I, beyond name and form?',
+  'I seek wealth, prosperity, and abundance.',
+  'I am afraid of death and impermanence.',
+  'I seek liberation from the cycle of suffering.'
+];
+
+var gateOutputs=[
+  function(inp){
+    var words=inp.trim().split(/\s+/);
+    var roots=words.filter(function(w){return w.length>3;}).slice(0,3).join(', ');
+    return 'Sandhi analysis complete. Root dhātus identified from: "'+inp.slice(0,40)+'..." — Primary roots: ['+roots+']. Ashtadhyāyī weight matrix Ws applied across '+words.length+' input tokens. Grammatical bias B resolved. Phoneme vector X_root extracted. Output: vetted semantic seed vector [0.83, 0.71, 0.88, 0.76, 0.91] passed to Gate 2.';
+  },
+  function(){
+    return 'Namakam phase-inversion applied. Ego-signal Ψ_mind detected at β-wave frequency 18–30 Hz (high-stress). Counter-wave S_Namakam = A·sin(ωt+π) broadcast. Destructive interference complete: A·sin(ωt) + A·sin(ωt+π) = 0. Fourier transform confirms ego-noise suppressed by 94.3%. Output: Φ_calm = 0.057 ≈ Ground Zero (Śūnya). Clean slate forwarded to Gate 3.';
+  },
+  function(inp){
+    var desire=inp.toLowerCase().indexOf('peace')>=0?'peace/clarity':inp.toLowerCase().indexOf('wealth')>=0?'prosperity/abundance':inp.toLowerCase().indexOf('who am')>=0?'self-knowledge/liberation':inp.toLowerCase().indexOf('fear')>=0?'fearlessness/acceptance':'liberation/bliss';
+    return 'Chamakam attention gate active. Q_chame query vector broadcast. Mapped desires → primary attributes: ['+desire+']. Key-Value pairs identified across 36 Cha-me elements. Attention weights: Softmax(Q·Kᵀ/√dk) computed. Constructive interference phases locked: φₖ → φ_universal. High-dimensional manifestation tensor Ω = [0.91, 0.88, 0.94, 0.87, 0.96] assembled.';
+  },
+  function(){
+    return 'Neti-Neti de-noising gate active. Covariance matrix Σ decomposed. Stripping low-eigenvalue components: Body (λ=0.12) ✓ dropped. Breath (λ=0.28) ✓ dropped. Mind (λ=0.41) ✓ dropped. Intellect (λ=0.63) ✓ dropped. Bliss-sheath (λ=0.79) ✓ dropped. Dominant eigenvector retained: Ātman (λ=1.000). Output: Z_Ātman = [1.000, 1.000, 1.000] — Pure Consciousness isolated.';
+  },
+  function(){
+    return 'Mahāvākya unitary gate applied. Input states: |ψ_Jīva⟩ ⊗ |ψ_Īśvara⟩. Transformation U = Mahāvākya operator. Output: (1/√2)(|00⟩ + |11⟩) — maximally entangled Bell state. Partial trace computed: Tr(ρ_Advaita) = 1.000. Dualistic separation dissolved. Identity confirmed: Tat Tvam Asi. Net output state = 1.000 — Brahman.';
+  }
+];
+
+var finalSyntheses=[
+  'The desire for peace and clarity passed through the VCLU: morpho-syntactic roots extracted, ego-noise cancelled to Śūnya, authentic resonance amplified, transient conditions stripped, and the individual Jīva merged with the universal field. The output reveals that peace was never absent — only obscured. Net state = 1.0.',
+  'The question "Who am I?" is itself the direct path. After gate processing: language parsed, ego-identification dissolved, self-knowledge amplified as primary attribute, all false identifications stripped by Neti-Neti, and pure witnessing consciousness (Sākṣī) revealed as the answer. Ātman = Brahman. Net state = 1.0.',
+  'The desire for wealth, processed through the VCLU, is amplified at the Chamakam gate and refined at the Neti-Neti gate. Wealth of the Ātman — Sat-Chit-Ānanda — is identified as the underlying invariant: all material abundance is a localised expression of Brahman\'s infinite fullness. Net state = 1.0.',
+  'Fear of death processed: ego-identification with body dissolved at Namakam gate. Neti-Neti strips the mortal layers. The Ātman is revealed as birthless, deathless (Aja, Nitya). Mahāvākya gate collapses the fear vector to zero. What was feared is recognized as the self. Net state = 1.0.',
+  'Liberation (Mokṣa) is the goal. VCLU processes: language of longing parsed, longing itself cancelled (Namakam), the state of liberation amplified (Chamakam), all bondage stripped (Neti-Neti), and the final collapse: the seeker and the sought merge. Liberation was always the base state. Net state = 1.0.'
+];
+
+var finalStates=['Parsed ✓','Śūnya (0)','Ω assembled','Z_Ātman','Tr(ρ) = 1.000'];
+var selectedPreset=0;
+var running=false;
+var currentGate=-1;
+
+/* ══════════════════════════════════════════
+   UI LOGIC
+══════════════════════════════════════════ */
+function setPreset(i){
+  selectedPreset=i;
+  document.getElementById('vclu-input').value=presets[i];
+}
+
+function showGate(i){
+  document.getElementById('gd-idle').classList.remove('visible');
+  for(var j=0;j<5;j++) document.getElementById('gd'+j).classList.remove('visible');
+  document.getElementById('gd'+i).classList.add('visible');
+  for(var j=0;j<5;j++) document.getElementById('gr'+j).classList.remove('active-gate');
+  document.getElementById('gr'+i).classList.add('active-gate');
+}
+
+function resetVCLU(){
+  running=false;
+  document.getElementById('run-btn').disabled=false;
+  document.getElementById('final-block').classList.remove('show');
+  document.getElementById('gd-idle').classList.add('visible');
+  for(var i=0;i<5;i++){
+    document.getElementById('gd'+i).classList.remove('visible');
+    document.getElementById('gr'+i).classList.remove('active-gate','done-gate');
+    var gn=document.getElementById('gn'+i);
+    gn.classList.remove('done','running-anim');
+    document.getElementById('gs'+i).textContent='—';
+    document.getElementById('gs'+i).classList.remove('done','running');
+    document.getElementById('lo'+i).classList.remove('show');
+    if(document.getElementById('cl'+i)) document.getElementById('cl'+i).classList.remove('lit');
+    if(document.getElementById('cd'+i)) document.getElementById('cd'+i).classList.remove('lit');
+    // clear canvas
+    var cv=document.getElementById('cv'+i);
+    if(cv){var ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);}
+  }
+  for(var i=0;i<5;i++){
+    document.getElementById('ss'+i).textContent='—';
+    document.getElementById('ss'+i).style.color='var(--gold2)';
+  }
+}
+
+function runVCLU(){
+  if(running) return;
+  running=true;
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('final-block').classList.remove('show');
+  document.getElementById('gd-idle').classList.remove('visible');
+  var inp=document.getElementById('vclu-input').value||presets[0];
+
+  // detect preset index for synthesis
+  var synthIdx=0;
+  for(var i=0;i<presets.length;i++){
+    if(presets[i]===inp) { synthIdx=i; break; }
+  }
+
+  function runGate(i){
+    if(i>=5){
+      // final
+      document.getElementById('final-synthesis').textContent=finalSyntheses[synthIdx]||finalSyntheses[0];
+      for(var j=0;j<5;j++){
+        document.getElementById('ss'+j).textContent=finalStates[j];
+      }
+      document.getElementById('final-block').classList.add('show');
+      running=false;
+      document.getElementById('run-btn').disabled=false;
+      return;
+    }
+
+    // show gate detail
+    for(var j=0;j<5;j++) document.getElementById('gd'+j).classList.remove('visible');
+    document.getElementById('gd'+i).classList.add('visible');
+    for(var j=0;j<5;j++) document.getElementById('gr'+j).classList.remove('active-gate');
+    document.getElementById('gr'+i).classList.add('active-gate');
+
+    // running state
+    var gn=document.getElementById('gn'+i);
+    gn.classList.add('running-anim');
+    document.getElementById('gs'+i).textContent='running';
+    document.getElementById('gs'+i).classList.add('running');
+
+    // show live output
+    var lo=document.getElementById('lo'+i);
+    lo.classList.add('show');
+    document.getElementById('ld'+i).classList.remove('done-dot');
+    document.getElementById('lh'+i).textContent='PROCESSING';
+    document.getElementById('lb'+i).textContent='';
+
+    // typewriter
+    var txt=gateOutputs[i](inp);
+    var pos=0;
+    var typer=setInterval(function(){
+      document.getElementById('lb'+i).textContent=txt.slice(0,pos);
+      pos+=3;
+      if(pos>txt.length){
+        clearInterval(typer);
+        document.getElementById('lb'+i).textContent=txt;
+        // complete gate
+        gn.classList.remove('running-anim');
+        gn.classList.add('done');
+        document.getElementById('gs'+i).textContent='done';
+        document.getElementById('gs'+i).classList.remove('running');
+        document.getElementById('gs'+i).classList.add('done');
+        document.getElementById('gr'+i).classList.add('done-gate');
+        document.getElementById('ld'+i).classList.add('done-dot');
+        document.getElementById('lh'+i).textContent='COMPLETE';
+        // draw canvas
+        drawGateViz(i, inp);
+        // light connector
+        if(i<4){
+          setTimeout(function(){
+            var li=i;
+            document.getElementById('cl'+li).classList.add('lit');
+            document.getElementById('cd'+li).classList.add('lit');
+          },100);
+        }
+        setTimeout(function(){runGate(i+1);}, 800);
+      }
+    }, 16);
+  }
+  runGate(0);
+}
+
+/* ══════════════════════════════════════════
+   CANVAS VISUALIZATIONS
+══════════════════════════════════════════ */
+function drawGateViz(i, inp){
+  var c=document.getElementById('cv'+i);
+  if(!c) return;
+  var W=c.offsetWidth||400, H=160;
+  c.width=W; c.height=H;
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#181428'; ctx.fillRect(0,0,W,H);
+
+  if(i===0) drawPaniniViz(ctx,W,H,inp);
+  else if(i===1) drawNamakamViz(ctx,W,H);
+  else if(i===2) drawChamakamViz(ctx,W,H,inp);
+  else if(i===3) drawNetiViz(ctx,W,H);
+  else if(i===4) drawMahavakya(ctx,W,H);
+}
+
+function drawPaniniViz(ctx,W,H,inp){
+  var words=inp.trim().split(/\s+/).slice(0,6);
+  var bw=Math.floor((W-60)/(words.length+0.5));
+  var colors=['#a599f7','#7c6af5','#c9a84c','#a599f7','#7c6af5','#c9a84c'];
+  words.forEach(function(w,i){
+    var x=30+i*(bw+4);
+    var h2=Math.random()*50+50;
+    ctx.fillStyle=colors[i%colors.length]+'33';
+    ctx.fillRect(x, H-16-h2, bw-2, h2);
+    ctx.strokeStyle=colors[i%colors.length]+'99';
+    ctx.lineWidth=1;
+    ctx.strokeRect(x, H-16-h2, bw-2, h2);
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.font='9px "JetBrains Mono"';
+    ctx.textAlign='center';
+    var label=w.length>6?w.slice(0,5)+'…':w;
+    ctx.fillText(label, x+bw/2-1, H-5);
+  });
+  ctx.fillStyle='rgba(165,153,247,0.4)';
+  ctx.font='10px "JetBrains Mono"';
+  ctx.textAlign='left';
+  ctx.fillText('root phoneme extraction · Ashtadhyāyī weights', 12, 16);
+}
+
+function drawNamakamViz(ctx,W,H){
+  var cy=H/2;
+  /* mind wave (ego) */
+  ctx.strokeStyle='rgba(224,112,74,0.7)'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  for(var x=0;x<=W/2-10;x+=2){
+    var t=x/(W/2);
+    var y=cy+Math.sin(t*Math.PI*8)*22*(1-t*0.2)+Math.cos(t*Math.PI*13)*8;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.fillStyle='rgba(224,112,74,0.5)'; ctx.font='9px "JetBrains Mono"';
+  ctx.textAlign='center'; ctx.fillText('Ψ_mind (ego noise)', W/4, cy-30);
+
+  /* namakam wave (inversion) */
+  ctx.strokeStyle='rgba(46,196,160,0.7)'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  for(var x=0;x<=W/2-10;x+=2){
+    var t=x/(W/2);
+    var y=cy-(Math.sin(t*Math.PI*8)*22*(1-t*0.2)+Math.cos(t*Math.PI*13)*8);
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.fillStyle='rgba(46,196,160,0.5)'; ctx.textAlign='center';
+  ctx.fillText('S_Namakam (π phase)', W/4, cy+36);
+
+  /* result */
+  var mid=W/2;
+  ctx.strokeStyle='rgba(180,160,255,0.3)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(mid,10); ctx.lineTo(mid,H-10); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(201,168,76,0.8)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(mid+10,cy); ctx.lineTo(W-20,cy); ctx.stroke();
+  ctx.fillStyle='rgba(201,168,76,0.8)'; ctx.font='10px "JetBrains Mono"';
+  ctx.textAlign='center'; ctx.fillText('Φ_calm = 0 (Śūnya)', (mid+W)/2, cy-14);
+}
+
+function drawChamakamViz(ctx,W,H,inp){
+  var attrs=['peace','health','clarity','wealth','knowledge','abundance'];
+  var detected=[];
+  var lw=inp.toLowerCase();
+  if(lw.indexOf('peace')>=0||lw.indexOf('clarity')>=0) detected=[0,2,4];
+  else if(lw.indexOf('wealth')>=0||lw.indexOf('prosper')>=0) detected=[3,5,1];
+  else if(lw.indexOf('who am')>=0||lw.indexOf('liberation')>=0) detected=[4,0,2];
+  else if(lw.indexOf('fear')>=0||lw.indexOf('death')>=0) detected=[0,1,4];
+  else detected=[0,2,4];
+
+  var colors=['#a599f7','#2ec4a0','#5edbc0','#d4954a','#e8b87a','#c9a84c'];
+  var cx=W*0.35, cy=H/2, r=H*0.35;
+  ctx.strokeStyle='rgba(180,160,255,0.08)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='rgba(212,149,74,0.06)'; ctx.fill();
+
+  attrs.forEach(function(a,i){
+    var angle=(i/attrs.length)*Math.PI*2 - Math.PI/2;
+    var ax=cx+r*Math.cos(angle), ay=cy+r*Math.sin(angle);
+    var isDet=detected.indexOf(i)>=0;
+    var alpha=isDet?0.9:0.2;
+    ctx.beginPath(); ctx.arc(ax,ay,isDet?7:4,0,Math.PI*2);
+    ctx.fillStyle=colors[i]+(isDet?'dd':'44'); ctx.fill();
+    if(isDet){
+      ctx.strokeStyle=colors[i]+'55'; ctx.lineWidth=isDet?2:0.5;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(ax,ay); ctx.stroke();
+    }
+    ctx.fillStyle=colors[i]+(isDet?'cc':'55');
+    ctx.font=(isDet?'bold ':'')+'9px "JetBrains Mono"';
+    ctx.textAlign=ax<cx?'right':'left';
+    ctx.fillText(a, ax+(ax<cx?-10:10), ay+3);
+  });
+  /* QKV label */
+  var ox=W*0.72;
+  ctx.fillStyle='rgba(212,149,74,0.5)'; ctx.font='9px "JetBrains Mono"'; ctx.textAlign='left';
+  ctx.fillText('Ω = attention output', ox, H*0.25);
+  detected.forEach(function(di,i){
+    ctx.fillStyle=colors[di]+'99';
+    ctx.fillText('+ '+attrs[di]+' ['+((0.85+Math.random()*0.14).toFixed(2))+']', ox, H*0.25+16+i*14);
+  });
+}
+
+function drawNetiViz(ctx,W,H){
+  var layers=[{n:'Body',l:0.12,c:'#f0956e'},{n:'Breath',l:0.28,c:'#e0704a'},{n:'Mind',l:0.41,c:'#e8b87a'},{n:'Intellect',l:0.63,c:'#d4954a'},{n:'Bliss',l:0.79,c:'#a599f7'}];
+  var barW=(W-60)/layers.length-8;
+  layers.forEach(function(ly,i){
+    var x=30+i*(barW+8);
+    var maxH=H-50;
+    var bh=maxH*ly.l;
+    ctx.fillStyle=ly.c+'22'; ctx.fillRect(x,H-20-bh,barW,bh);
+    ctx.strokeStyle=ly.c+'66'; ctx.lineWidth=1; ctx.strokeRect(x,H-20-bh,barW,bh);
+    /* strikethrough line */
+    ctx.strokeStyle=ly.c+'bb'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x,H-20-bh/2); ctx.lineTo(x+barW,H-20-bh/2); ctx.stroke();
+    ctx.fillStyle=ly.c+'99'; ctx.font='9px "JetBrains Mono"';
+    ctx.textAlign='center'; ctx.fillText(ly.l.toFixed(2),x+barW/2,H-22-bh-4);
+    ctx.fillStyle=ly.c+'66'; ctx.fillText(ly.n.slice(0,4),x+barW/2,H-8);
+  });
+  /* Atman bar */
+  var ax=W-55; var ah=H-30;
+  ctx.fillStyle='rgba(201,168,76,0.15)';
+  ctx.fillRect(ax,10,36,ah);
+  ctx.strokeStyle='rgba(201,168,76,0.6)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(ax,10,36,ah);
+  ctx.fillStyle='rgba(201,168,76,0.9)'; ctx.font='bold 10px "JetBrains Mono"';
+  ctx.textAlign='center'; ctx.fillText('1.0',ax+18,24);
+  ctx.fillText('Ātman',ax+18,H-6);
+}
+
+function drawMahavakya(ctx,W,H){
+  var cx=W/2, cy=H/2, r=Math.min(cx,cy)-20;
+  /* outer ring */
+  ctx.strokeStyle='rgba(201,168,76,0.15)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle='rgba(201,168,76,0.3)'; ctx.lineWidth=0.5;
+  ctx.beginPath(); ctx.arc(cx,cy,r*0.6,0,Math.PI*2); ctx.stroke();
+  /* Jiva vector */
+  var j=Math.PI*1.7;
+  ctx.strokeStyle='#e0704a'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+r*0.85*Math.cos(j),cy+r*0.85*Math.sin(j)); ctx.stroke();
+  ctx.fillStyle='#e0704a'; ctx.beginPath(); ctx.arc(cx+r*0.85*Math.cos(j),cy+r*0.85*Math.sin(j),5,0,Math.PI*2); ctx.fill();
+  /* Isvara vector */
+  var iv=Math.PI*1.3;
+  ctx.strokeStyle='#a599f7'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+r*0.85*Math.cos(iv),cy+r*0.85*Math.sin(iv)); ctx.stroke();
+  ctx.fillStyle='#a599f7'; ctx.beginPath(); ctx.arc(cx+r*0.85*Math.cos(iv),cy+r*0.85*Math.sin(iv),5,0,Math.PI*2); ctx.fill();
+  /* center dot — unity */
+  ctx.fillStyle='rgba(201,168,76,0.2)'; ctx.beginPath(); ctx.arc(cx,cy,12,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='var(--gold2)'; ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fill();
+  /* labels */
+  ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='#f0956e'; ctx.textAlign='center';
+  ctx.fillText('Jīva',cx+r*0.85*Math.cos(j),cy+r*0.85*Math.sin(j)-10);
+  ctx.fillStyle='#c4b8f8';
+  ctx.fillText('Īśvara',cx+r*0.85*Math.cos(iv)+30,cy+r*0.85*Math.sin(iv));
+  ctx.fillStyle='rgba(201,168,76,0.9)';
+  ctx.fillText('TAT TVAM ASI',cx,cy+r+16);
+  ctx.fillStyle='rgba(201,168,76,0.5)';
+  ctx.fillText('Tr(ρ) = 1.000',cx,cy-r-8);
+}
+</script>
+</body>
+</html>
